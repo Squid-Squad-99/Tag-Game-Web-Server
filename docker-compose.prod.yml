@@ -3,8 +3,8 @@ version: '3.3'
 services:
   web:
     build:
-      dockerfile: Dockerfile.prod
       context: ./webserver_v1
+      dockerfile: Dockerfile.prod
     command: gunicorn webserver.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/app/web/static
