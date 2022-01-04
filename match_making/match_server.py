@@ -90,8 +90,6 @@ def core_match():
                     "ConnectionAuthId": str(uuid.uuid3(uuid.NAMESPACE_URL, str(human.UserId))),
                 }
                 match = MatchInfo(**match_info)
-                print(match.json())
-                print(type(str.encode(match.json())))
                 conn_dict[human.UserId].send(str.encode(match.json()))
                 human_waiting.pop()
 
