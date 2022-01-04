@@ -133,6 +133,7 @@ dmypy.json
 
 .idea/
 
-# local dev
+# local devls
 db.splite3
+.DS_Store
 
