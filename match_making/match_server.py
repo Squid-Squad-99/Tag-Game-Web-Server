@@ -3,6 +3,7 @@ import threading
 from pydantic import BaseModel, validator, ValidationError
 import json
 import uuid
+from typing import List
 
 HOST = ''
 PORT = 9999
@@ -40,12 +41,26 @@ class Ticket(BaseModel):
         return v
 
 
+class ServerTicket(BaseModel):
+    UserId: int
+    Username: str
+    Rank: int
+    GameMode: int
+    CharacterType: int = 0
+    ConnectionAuthId: str
+
+
+class ServerTicketList(BaseModel):
+    ServerTicketList: List[ServerTicket]
+
+
+
 human_waiting = list()
 ghost_waiting = list()
 
 conn_dict = dict()
-# data_dict = dict()
-match_dict = dict()
+
+finish_ticket = list()
 
 
 # handle ticket validation and let socket continuing connect
@@ -67,12 +82,28 @@ def handle_join(conn, data):
     while True:
         if ticket not in human_waiting and ticket not in ghost_waiting:
             conn.close()
+            break
 
 
 def create_game():
     # not yet inplement
     game = Game()
     return game
+
+
+def server_check(conn):
+    while True:
+        if len(finish_ticket) < 2:
+            continue
+        ticket_1 = finish_ticket.pop()
+        ticket_2 = finish_ticket.pop()
+        ticket_dict = {
+            "ticket_1": ticket_1,
+            "ticket_2": ticket_2,
+        }
+        response = ServerTicketList(**ticket_dict)
+        conn.send(str.encode(response.json()))
+        break
 
 
 def core_match():
@@ -83,27 +114,52 @@ def core_match():
 
             for _ in range(0, HUMAN_MIN):
                 human = human_waiting[0]
+                auth_id = str(uuid.uuid3(uuid.NAMESPACE_URL, str(human.UserId)))
                 match_info = {
                     "GameServerIP": game.IP,
                     "GameServerPort": game.Port,
                     "success": True,
-                    "ConnectionAuthId": str(uuid.uuid3(uuid.NAMESPACE_URL, str(human.UserId))),
+                    "ConnectionAuthId": auth_id
                 }
                 match = MatchInfo(**match_info)
                 conn_dict[human.UserId].send(str.encode(match.json()))
                 human_waiting.pop()
 
+                ticket_info = {
+                    "UserId": human.UserId,
+                    "Username": human.Username,
+                    "Rank": human.Rank,
+                    "GameMode": human.GameMode,
+                    "CharacterType": human.CharacterType,
+                    "ConnectionAuthId": auth_id,
+                }
+                ticket = ServerTicket(**ticket_info)
+                finish_ticket.append(ticket)
+
             for _ in range(0, GHOST_MIN):
                 ghost = ghost_waiting[0]
+                auth_id = str(uuid.uuid3(uuid.NAMESPACE_URL, str(ghost.UserId)))
                 match_info = {
                     "GameServerIP": game.IP,
                     "GameServerPort": game.Port,
                     "success": True,
-                    "ConnectionAuthId": str(uuid.uuid3(uuid.NAMESPACE_URL, str(ghost.UserId))),
+                    "ConnectionAuthId": auth_id,
                 }
                 match = MatchInfo(**match_info)
                 conn_dict[ghost.UserId].send(str.encode(match.json()))
                 ghost_waiting.pop()
+
+                ticket_info = {
+                    "UserId": ghost.UserId,
+                    "Username": ghost.Username,
+                    "Rank": ghost.Rank,
+                    "GameMode": ghost.GameMode,
+                    "CharacterType": ghost.CharacterType,
+                    "ConnectionAuthId": auth_id,
+                }
+                ticket = ServerTicket(**ticket_info)
+                finish_ticket.append(ticket)
+
 
 
 if __name__ == '__main__':
@@ -117,7 +173,10 @@ if __name__ == '__main__':
         while True:
             conn, addr = s.accept()
             data = conn.recv(1024)
-            t_outer = threading.Thread(target=handle_join, args=(conn, data, ))
+            if data == b"server":
+                t_outer = threading.Thread(target=server_check, args=(conn, ))
+            else:
+                t_outer = threading.Thread(target=handle_join, args=(conn, data, ))
             threads.append(t_outer)
             t_outer.start()
             print(len(threads))
