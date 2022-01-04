@@ -6,7 +6,7 @@ import uuid
 from typing import List
 
 HOST = ''
-PORT = 9990
+PORT = 9999
 HUMAN_MIN = 1
 GHOST_MIN = 1
 
