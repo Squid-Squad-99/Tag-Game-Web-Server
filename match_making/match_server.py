@@ -6,7 +6,7 @@ import uuid
 from typing import List
 
 HOST = ''
-PORT = 9999
+PORT = 9990
 HUMAN_MIN = 1
 GHOST_MIN = 1
 
@@ -46,7 +46,7 @@ class ServerTicket(BaseModel):
     Username: str
     Rank: int
     GameMode: int
-    CharacterType: int = 0
+    CharacterType: int
     ConnectionAuthId: str
 
 
@@ -98,8 +98,7 @@ def server_check(conn):
         ticket_1 = finish_ticket.pop()
         ticket_2 = finish_ticket.pop()
         ticket_dict = {
-            "ticket_1": ticket_1,
-            "ticket_2": ticket_2,
+            "ServerTicketList": [ticket_1, ticket_2],
         }
         response = ServerTicketList(**ticket_dict)
         conn.send(str.encode(response.json()))
@@ -107,7 +106,6 @@ def server_check(conn):
 
 
 def core_match():
-    print("hi")
     while True:
         if len(human_waiting) >= HUMAN_MIN and len(ghost_waiting) >= GHOST_MIN:
             game = create_game()
@@ -175,8 +173,10 @@ if __name__ == '__main__':
             data = conn.recv(1024)
             if data == b"server":
                 t_outer = threading.Thread(target=server_check, args=(conn, ))
+                print("This is server")
             else:
                 t_outer = threading.Thread(target=handle_join, args=(conn, data, ))
+                print("This is client")
             threads.append(t_outer)
             t_outer.start()
             print(len(threads))
