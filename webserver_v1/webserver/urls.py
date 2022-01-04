@@ -23,11 +23,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', include('apps.myuser.urls')),
+    path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += [
-    path('', RedirectView.as_view(url='/signup/', permanent=True)),
+    path('', RedirectView.as_view(url='/auth/users', permanent=True)),
 ]

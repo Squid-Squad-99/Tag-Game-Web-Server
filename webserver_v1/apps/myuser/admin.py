@@ -8,24 +8,24 @@ class MyUserAdmin(UserAdmin):
     add_form = MyUserCreationForm
     form = MyUserChangeForm
     model = get_user_model()
-    list_display = ('username', 'email', 'is_staff', 'is_active')
-    list_filter = ('username', 'email', 'is_staff', 'is_active')
-    fieldsets = ((None, {'fields': ('username', 'email', 'password')}),
+    list_display = ('username',  'is_staff', 'is_active')
+    list_filter = ('username',  'is_staff', 'is_active')
+    fieldsets = ((None, {'fields': ('username',  'password')}),
                  ('Permissions', {'fields': ('is_staff', 'is_active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_active', 'birth_day',)}
+            'fields': ('username',  'password1', 'password2', 'is_staff', 'is_active', )}
         ),
     )
     search_fields = (
         'username',
-        'email',
+
     )
     ordering = (
         'username',
-        'email',
+
     )
     filter_horizontal = ()
 

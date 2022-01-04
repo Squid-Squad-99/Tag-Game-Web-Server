@@ -5,15 +5,14 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class MyUserCreationForm(UserCreationForm):
-    birth_day = forms.DateField(help_text=_('Required. Format: YYYY-MM-DD'))
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email', 'birth_day', )
+        fields = ('username',)
 
 
 class MyUserChangeForm(UserChangeForm):
 
     class Meta:
         model = get_user_model()
-        fields = ('username', 'email', 'birth_day', )
+        fields = ('username', )
