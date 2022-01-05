@@ -13,7 +13,7 @@ GHOST_MIN = 1
 
 class Game(BaseModel):
     IP: str = "127.0.0.1"
-    Port: str = "8787"
+    Port: str = "7777"
 
 
 class MatchInfo(BaseModel):
@@ -157,7 +157,6 @@ def core_match():
                 }
                 ticket = ServerTicket(**ticket_info)
                 finish_ticket.append(ticket)
-
 
 
 if __name__ == '__main__':
