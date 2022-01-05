@@ -51,7 +51,7 @@ class ServerTicket(BaseModel):
 
 
 class ServerTicketList(BaseModel):
-    ServerTicketList: List[ServerTicket]
+    Items: List[ServerTicket]
 
 
 
@@ -98,7 +98,7 @@ def server_check(conn):
         ticket_1 = finish_ticket.pop()
         ticket_2 = finish_ticket.pop()
         ticket_dict = {
-            "ServerTicketList": [ticket_1, ticket_2],
+            "Items": [ticket_1, ticket_2],
         }
         response = ServerTicketList(**ticket_dict)
         conn.send(str.encode(response.json()))
