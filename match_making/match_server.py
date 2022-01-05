@@ -12,7 +12,7 @@ GHOST_MIN = 1
 
 
 class Game(BaseModel):
-    IP: str = "127.0.0.1"
+    IP: str = "35.234.57.237"
     Port: str = "7777"
 
 
